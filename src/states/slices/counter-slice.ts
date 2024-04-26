@@ -1,9 +1,14 @@
 import { CounterState } from '@/types'
 import { createSlice } from '@reduxjs/toolkit'
 
-const initialState: CounterState = {
+const DEFAULT_VALUE: CounterState = {
   value: 0
 }
+
+const initialState: CounterState = (() => {
+  const persistedState = localStorage.getItem('__state__')
+  return persistedState ? JSON.parse(persistedState).counter : DEFAULT_VALUE
+})()
 
 export const counterSlice = createSlice({
   name: 'counter',
@@ -16,7 +21,7 @@ export const counterSlice = createSlice({
       state.value--
     },
     reset: (state) => {
-      state.value = initialState.value
+      state.value = DEFAULT_VALUE.value
     }
   }
 })
