@@ -5,10 +5,24 @@ const DEFAULT_VALUE: CounterState = {
   value: 0
 }
 
-const initialState: CounterState = (() => {
-  const persistedState = localStorage.getItem('__state__')
-  return persistedState ? JSON.parse(persistedState).counter : DEFAULT_VALUE
-})()
+// This function will handle checking the environment and loading state appropriately
+const getInitialState = (): CounterState => {
+  if (typeof window !== 'undefined') {
+    // Ensure we are in the browser
+    const persistedState = localStorage.getItem('__state__')
+    if (persistedState) {
+      try {
+        const loadedState = JSON.parse(persistedState).counter
+        return loadedState || DEFAULT_VALUE // Return loaded state or default if undefined
+      } catch (error) {
+        console.error('Error parsing state from localStorage:', error)
+      }
+    }
+  }
+  return DEFAULT_VALUE // Default initial state if not in browser or if no state in localStorage
+}
+
+const initialState: CounterState = getInitialState()
 
 export const counterSlice = createSlice({
   name: 'counter',
@@ -21,7 +35,7 @@ export const counterSlice = createSlice({
       state.value--
     },
     reset: (state) => {
-      state.value = DEFAULT_VALUE.value
+      state.value = DEFAULT_VALUE.value // Always reset to default value
     }
   }
 })
